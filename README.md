@@ -99,9 +99,9 @@ target_network_update_interval │ 500
 ```
 
 ```python
-from logger import Logger
+from tf_logger import TF_Logger
 
-logger = Logger('/mnt/slab/krypton/unitest')
+logger = TF_Logger('/mnt/slab/krypton/unitest')
 logger.log(0, some=Color(0.1, 'yellow'))
 logger.log(1, some=Color(0.28571, 'yellow', lambda v: f"{v * 100:.5f}%"))
 logger.log(2, some=Color(0.85, 'yellow', percent))
