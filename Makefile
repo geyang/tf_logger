@@ -15,8 +15,8 @@ dev:
 convert-rst:
 	pandoc -s README.md -o README --to=rst
 	sed -i '' 's/code/code-block/g' README
+	sed -i '' 's/\.\. code-block:: log/.. code-block:: text/g' README
 	sed -i '' 's/\.\//https\:\/\/github\.com\/episodeyang\/tf_logger\/blob\/master\//g' README
-	# sed -E -i '' 's/\.(jpg|png)/.\1?raw=true/g' README
 	perl -p -i -e 's/\.(jpg|png|gif)/.$$1?raw=true/' README
 	rst-lint README
 resize: # from https://stackoverflow.com/a/28221795/1560241

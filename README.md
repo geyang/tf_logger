@@ -33,10 +33,12 @@ logger = TF_Logger(log_directory=f"/mnt/bucket/deep_Q_learning/{datetime.now(%Y%
 logger.log_params(G=vars(G), RUN=vars(RUN), Reporting=vars(Reporting))
 ```
 outputs the following
-![example_real_log_output.png](./figures/example_log_output.png)
+
+![example_real_log_output](./figures/example_log_output.png)
 
 And the data from multiple experiments can be views with tensorboard. 
-![tensorboard_example.png](./figures/tensorboard_example.png)
+
+![tensorboard_example](./figures/tensorboard_example.png)
 
 ```log
 ═════════════════════════════════════════════════════
