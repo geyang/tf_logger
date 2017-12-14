@@ -14,13 +14,12 @@ setup(name="tf_logger",
       author="Ge Yang",
       author_email="yangge1987@gmail.com",
       license=None,
-      keywords=["tf_logger", "logging", "debug", "debugging", "timer", "timeit", "decorator",
-                "stopwatch", "tic", "toc"],
+      keywords=["tf_logger", "tensorflow", "logging", "debug", "debugging"],
       classifiers=[
           "Development Status :: 4 - Beta",
           "Intended Audience :: Science/Research",
           "Programming Language :: Python :: 3"
       ],
       packages=["tf_logger"],
-      install_requires=["termcolor", "pprint"]
+      install_requires=["typing", "tensorflow", "numpy", "termcolor", "pprint"]
       )

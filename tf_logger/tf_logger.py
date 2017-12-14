@@ -3,7 +3,6 @@ from collections import OrderedDict, deque
 from termcolor import colored as c
 import tensorflow as tf
 import numpy as np
-import baselines.common.tf_util as U
 
 from moleskin import moleskin as M
 
@@ -147,7 +146,8 @@ class TF_Logger:
 
         table_tensor = tf.convert_to_tensor(table, dtype=tf.string)
         summary_op = tf.summary.text('experiment_parameters', table_tensor)
-        self.summary_writer.add_summary(U.get_session().run(summary_op), 0)
+        with tf.get_default_session() as sess:
+            self.summary_writer.add_summary(sess.run(summary_op), 0)
 
     def log(self, index: Union[int, Color], *dicts, silent=False, **kwargs) -> None:
         """
