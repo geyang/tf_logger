@@ -15,7 +15,7 @@ logger.log(index=3, note='this is a log entry!')
 logger.flush()
 ```
 
-> Like other google products, TensorBoard has significant usability issues. I'm planning on writing a better ML dashboard in the future.
+> I'm planning on writing a better ML dashboard in the future.
 
 This version of logger is integrated with `tensorboard` and at the same time prints the data in a tabular format to your `stdout`.
 - can silence `stdout` per key (per `logger.log` call)
