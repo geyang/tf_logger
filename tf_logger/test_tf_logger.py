@@ -9,6 +9,7 @@ def test():
     TEST_LOG_DIR = '/tmp/tf_logger/test'
 
     logger = TF_Logger(TEST_LOG_DIR)
+    logger.log_params(G=dict(some_config="hey"))
     logger.log(0, some=Color(0.1, 'yellow'))
     logger.log(1, some=Color(0.28571, 'yellow', lambda v: f"{v * 100:.5f}%"))
     logger.log(2, some=Color(0.85, 'yellow', percent))
