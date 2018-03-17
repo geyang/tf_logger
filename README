@@ -17,8 +17,7 @@ Usage
     logger.log(index=3, note='this is a log entry!')
     logger.flush()
 
-    Like other google products, TensorBoard has significant usability
-    issues. I'm planning on writing a better ML dashboard in the future.
+    I'm planning on writing a better ML dashboard in the future.
 
 This version of logger is integrated with ``tensorboard`` and at the
 same time prints the data in a tabular format to your ``stdout``. - can
@@ -113,9 +112,9 @@ And the data from multiple experiments can be views with tensorboard.
 
 .. code-block:: python
 
-    from logger import Logger
+    from tf_logger import TF_Logger
 
-    logger = Logger('/mnt/slab/krypton/unitest')
+    logger = TF_Logger('/mnt/slab/krypton/unitest')
     logger.log(0, some=Color(0.1, 'yellow'))
     logger.log(1, some=Color(0.28571, 'yellow', lambda v: f"{v * 100:.5f}%"))
     logger.log(2, some=Color(0.85, 'yellow', percent))

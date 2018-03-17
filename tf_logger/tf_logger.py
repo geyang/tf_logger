@@ -146,7 +146,8 @@ class TF_Logger:
 
         table_tensor = tf.convert_to_tensor(table, dtype=tf.string)
         summary_op = tf.summary.text('experiment_parameters', table_tensor)
-        with tf.get_default_session() as sess:
+        default_sess = tf.get_default_session() or tf.Session()
+        with default_sess as sess:
             self.summary_writer.add_summary(sess.run(summary_op), 0)
 
     def log(self, index: Union[int, Color], *dicts, silent=False, **kwargs) -> None:
