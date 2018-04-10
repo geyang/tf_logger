@@ -18,6 +18,12 @@ logger.flush()
 face = scipy.misc.face()
 face_bw = scipy.misc.face(gray=True)
 logger.log_image(index=4, color_image=face, black_white=face_bw)
+    image_bw = np.zeros((64, 64, 1))
+    image_bw_2 = scipy.misc.face(gray=True)[::4, ::4]
+    
+# now print a stack
+for i in range(10):
+    logger.log_image(i, animation=[face] * 5)
 ```
 
 ![logging images using tf_logger](./figures/logging_images.png)
