@@ -1,5 +1,8 @@
+from io import StringIO, BytesIO
 from typing import Union, Callable, Any
 from collections import OrderedDict, deque
+
+from matplotlib import pyplot
 from termcolor import colored as c
 import tensorflow as tf
 import numpy as np
@@ -104,7 +107,7 @@ class TF_Logger:
     # noinspection PyInitNewSignature
     def __init__(self, log_directory):
         self.summary_writer = tf.summary.FileWriter(log_directory)
-        self.index = None
+        self.step = None
         self.data = OrderedDict()
         self.do_not_print_list = set()
 
@@ -150,18 +153,18 @@ class TF_Logger:
         with default_sess as sess:
             self.summary_writer.add_summary(sess.run(summary_op), 0)
 
-    def log(self, index: Union[int, Color], *dicts, silent=False, **kwargs) -> None:
+    def log(self, step: Union[int, Color], *dicts, silent=False, **kwargs) -> None:
         """
 
-        :param index: the global index, be it the global timesteps or the epoch index
+        :param step: the global step, be it the global timesteps or the epoch step
         :param dicts: a dictionary of key/value pairs, allowing more flexible key name with '/' etc.
         :param silent: Bool, log but do not print. To keep the standard out silent.
         :param kwargs: key/value arguments.
         :return:
         """
-        if self.index != index and self.index is not None:
+        if self.step != step and self.step is not None:
             self.flush()
-        self.index = index
+        self.step = step
 
         data_dict = {}
         for d in dicts:
@@ -179,7 +182,7 @@ class TF_Logger:
                 M.debug(key, v)
                 raise e
             self.data[key] = v
-        self.summary_writer.add_summary(summary, index)
+        self.summary_writer.add_summary(summary, step)
 
     def flush(self, min_key_width=20, min_value_width=20):
         if not self.data:
@@ -207,38 +210,46 @@ class TF_Logger:
         self.data.clear()
         self.do_not_print_list.clear()
 
-    def log_image(self, index, **kwargs):
+    def log_image(self, step, **kwargs):
         """Logs an image via the summary writer.
         TODO: add support for PIL images etc.
+        reference: https://gist.github.com/gyglim/1f8dfb1b5c82627ae3efcfbbadb9f514
         """
-        if self.index != index and self.index is not None:
+        if self.step != step and self.step is not None:
             self.flush()
-        self.index = index
+        self.step = step
 
         # Create and write Summary
-        summary_ops = []
-        for key, img in kwargs.items():
-            image_data = tf.convert_to_tensor(img, tf.float16)
-            if len(image_data.shape) == 2:
-                image_data = tf.expand_dims(image_data, dim=-1)
-            if len(image_data.shape) == 3:
-                image_data = tf.expand_dims(image_data, dim=0)
+        summary_value = []
+        for key, images in kwargs.items():
+            if type(images) in [tuple, list]:
+                for frame_i, img in enumerate(images):
+                    w, h, *_ = img.shape
+                    s = BytesIO()
+                    pyplot.imsave(s, img, format='png')
+                    image_summary = tf.Summary.Image(width=w, height=h, encoded_image_string=s.getvalue())
+                    del s
 
-            batch_size = int(image_data.shape[0])
-            op = tf.summary.image(key, image_data, max_outputs=batch_size)
-            summary_ops.append(op)
+                    summary_value.append(tf.Summary.Value(tag=f"{key}/{frame_i}", image=image_summary))
+            else:
+                w, h, *_ = images.shape
+                if _ == [1,]:
+                    images = np.squeeze(images, axis=-1)
+                s = BytesIO()
+                pyplot.imsave(s, images, format='png')
+                image_summary = tf.Summary.Image(width=w, height=h, encoded_image_string=s.getvalue())
+                del s
 
-        default_sess = tf.get_default_session() or tf.Session()
-        with default_sess as sess:
-            summaries = sess.run(summary_ops)
-        for s in summaries:
-            self.summary_writer.add_summary(s, 0)
+                summary_value.append(tf.Summary.Value(tag=f"{key}", image=image_summary))
 
-    def log_histogram(self, index, *dicts, bins="auto", **kwargs):
+        summary = tf.Summary(value=summary_value)
+        self.summary_writer.add_summary(summary, step)
+
+    def log_histogram(self, step, *dicts, bins="auto", **kwargs):
         """Logs the histogram of a list/vector of values."""
-        if self.index != index and self.index is not None:
+        if self.step != step and self.step is not None:
             self.flush()
-        self.index = index
+        self.step = step
 
         data_dict = {}
         for d in dicts:
@@ -275,4 +286,4 @@ class TF_Logger:
             summary.value.add(tag=key, histo=hist)
             # note: do not add to `self.data[key] = v`
 
-        self.summary_writer.add_summary(summary, index)
+        self.summary_writer.add_summary(summary, step)
