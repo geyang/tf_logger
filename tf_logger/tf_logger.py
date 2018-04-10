@@ -42,7 +42,7 @@ class MovingAverage:
 
 class Color:
     # noinspection PyInitNewSignature
-    def __init__(self, value, color, formatter: Union[Callable[[Any], Any], None] = lambda v: v):
+    def __init__(self, value, color=None, formatter: Union[Callable[[Any], Any], None] = lambda v: v):
         self.value = value
         self.color = color
         self.formatter = formatter
@@ -54,7 +54,7 @@ class Color:
         return len(str(self.value))
 
     def __format__(self, format_spec):
-        if self.color == 'default':
+        if self.color in [None, 'default']:
             return self.formatter(self.value).__format__(format_spec)
         else:
             return c(self.formatter(self.value).__format__(format_spec), self.color)
@@ -206,6 +206,33 @@ class TF_Logger:
 
         self.data.clear()
         self.do_not_print_list.clear()
+
+    def log_image(self, index, **kwargs):
+        """Logs an image via the summary writer.
+        TODO: add support for PIL images etc.
+        """
+        if self.index != index and self.index is not None:
+            self.flush()
+        self.index = index
+
+        # Create and write Summary
+        summary_ops = []
+        for key, img in kwargs.items():
+            image_data = tf.convert_to_tensor(img, tf.float16)
+            if len(image_data.shape) == 2:
+                image_data = tf.expand_dims(image_data, dim=-1)
+            if len(image_data.shape) == 3:
+                image_data = tf.expand_dims(image_data, dim=0)
+
+            batch_size = int(image_data.shape[0])
+            op = tf.summary.image(key, image_data, max_outputs=batch_size)
+            summary_ops.append(op)
+
+        default_sess = tf.get_default_session() or tf.Session()
+        with default_sess as sess:
+            summaries = sess.run(summary_ops)
+        for s in summaries:
+            self.summary_writer.add_summary(s, 0)
 
     def log_histogram(self, index, *dicts, bins="auto", **kwargs):
         """Logs the histogram of a list/vector of values."""

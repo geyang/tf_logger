@@ -1,4 +1,4 @@
-# TF_Logger, A Logging Utility for Python Debugging
+# TF_Logger, A Tensorboard Logging Utility for Non-Tensorflow Python Projects
 
 ```bash
 pip install tf_logger
@@ -13,7 +13,14 @@ logger = TF_Logger(log_directory="/tmp/logs/tf_logger_test/")
 
 logger.log(index=3, note='this is a log entry!')
 logger.flush()
+
+# Images
+face = scipy.misc.face()
+face_bw = scipy.misc.face(gray=True)
+logger.log_image(index=4, color_image=face, black_white=face_bw)
 ```
+
+![logging images using tf_logger](./figures/logging_images.png)
 
 > I'm planning on writing a better ML dashboard in the future.
 
